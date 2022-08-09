@@ -1,5 +1,6 @@
 .App {
   text-align: center;
+  background-color: rgb(38, 184, 123);
 }
 
 .App-logo {
@@ -37,7 +38,15 @@
 .App-link {
   color: #61dafb;
 }
-
+.icon{
+  margin-top: '20px'
+}
+.paper{
+  padding: 16;
+}
+.grid{
+  padding: 12;
+}
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
@@ -45,4 +54,7 @@
   to {
     transform: rotate(360deg);
   }
+}
+.container{
+  background-color: rgb(78, 119, 155);
 }

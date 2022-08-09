@@ -6,7 +6,8 @@ import {
 
 } from "@material-ui/core";
 import { useState } from "react";
-import { ITodo } from "../models/todo";
+import { ICustomData, ITodo } from "../models/todo";
+import { CustomForm } from "./CustomForm";
 import { TodoList } from "./TodoList";
 
 export const Form = () => {
@@ -40,15 +41,21 @@ export const Form = () => {
         setTodos(newTodos);
     };
 
+    const handleCustomData =(custom:ICustomData) =>{
+        const newTodos = todos.map(object => {
+            return {...object, customData: custom};
+          });
+          setTodos(newTodos) 
+    }
+
     return (
         <div>
-            <Paper style={{ padding: 16 }}>
+            <Paper className="paper">
                 <form onSubmit={handleSubmit}>
                     <Grid
                         container
-                        justify='center'
                         alignItems="center"
-                        style={{ padding: 12 }}
+                        style={{ padding: 12 ,justifyContent:"center"}}
                         spacing={1}
                     >
                         <TextField
@@ -56,7 +63,7 @@ export const Form = () => {
                             value={value}
                             onChange={e => setValue(e.target.value)}
                             required
-                            label="Outlined"
+                            label="Task"
                             placeholder='Enter Task Here...'
 
                         />
@@ -65,7 +72,9 @@ export const Form = () => {
                         </Button>
                     </Grid>
                 </form>
+                <CustomForm handleCustom={handleCustomData}/>
             </Paper>
+           
             <br />
             <TodoList todos={todos} completeTodo={completeTodo} deleteTodo={deleteTodo} setTodos={setTodos} />
         </div>
