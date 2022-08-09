@@ -1,11 +1,10 @@
 import { DeleteForever, ChatBubbleOutline } from '@mui/icons-material';
-import { Divider, List, ListItemButton, ListItemIcon, ListSubheader, TextField } from '@mui/material';
+import { Divider, List, ListItemButton, ListItemIcon, ListSubheader, Switch, TextField } from '@mui/material';
 import { pink } from '@mui/material/colors';
-import React, { Fragment, useState } from 'react';
+import { Fragment, useState } from 'react';
 import {
     Button,
     Grid,
-    Paper,
     ListItemText,
 
 } from "@material-ui/core";
@@ -15,7 +14,6 @@ import StarBorder from '@mui/icons-material/StarBorder';
 import { ITodo, Comment } from '../models/todo';
 
 interface IProps {
-
     todos: ITodo[],
     completeTodo(index: number): void,
     deleteTodo(index: number): void,
@@ -24,22 +22,34 @@ interface IProps {
 }
 
 export const TodoList = (props: IProps) => {
+  
+    const label = { inputProps: { 'aria-label': 'Switch demo' } };
+
 
     let Comment: Comment = {
-
         isOpen: false,
         index: 0,
-
-    }
+    };
 
     const [open, setOpen] = useState<Comment>(Comment);
+    const [custom, setCustom] = useState<Comment>(Comment)
     const [comment, setComment] = useState<string>('');
+    const [field,setField] = useState<string>('')
 
     const handleComment = (index: number, value: string) => {
-        const newTodos: ITodo[] = [...props.todos]
-        newTodos[index].comments.push(value)
-        props.setTodos(newTodos)
+        const newTodos: ITodo[] = [...props.todos];
+        newTodos[index].comments.push(value);
+        props.setTodos(newTodos);
+        setComment('');
     }
+
+    const handleField = (index: number, value: any) => {
+        const newTodos: ITodo[] = [...props.todos];
+        if(newTodos[index].customData !== undefined)
+        newTodos[index].fieldValue = value
+        props.setTodos(newTodos);
+        setField('');
+          }
 
     return (
 
@@ -51,13 +61,13 @@ export const TodoList = (props: IProps) => {
                     aria-labelledby="nested-list-subheader"
                     subheader={
                         <ListSubheader component="div" id="nested-list-subheader">
-                            LIST
+                            LIST OF TASK
                         </ListSubheader>
                     }
                 >
-                    {props.todos.map((todo: ITodo, index: number) => {
+                    {props.todos.length > 0 && props.todos.map((todo: ITodo, index: number) => {
                         return (
-                            <Fragment key={index}>
+                            <div key={index} className='container'>
                                 <ListItemButton>
                                     <ListItemIcon>
                                         <SendIcon />
@@ -68,19 +78,12 @@ export const TodoList = (props: IProps) => {
                                         <strong> Task :</strong> {todo.text}
                                     </ListItemText>
                                 </ListItemButton>
-                                <ListItemButton>
 
-                                    <ListItemIcon>
-                                        {todo.comments.length}<ChatBubbleOutline style={{ marginTop: '20px' }} />
-                                    </ListItemIcon>
-                                    <ListItemText> <strong>Comments:</strong>{todo.comments + ','}</ListItemText>
-
-                                </ListItemButton>
                                 <ListItemButton color='Primary' onClick={(): void => props.completeTodo(index)}>
                                     <ListItemIcon>
                                         <StarBorder />
                                     </ListItemIcon>
-                                    <ListItemText> {todo.complete ? 'Incomplete' : 'Complete'}</ListItemText>
+                                    <ListItemText> {todo.complete ? 'In Complete' : 'Complete'}</ListItemText>
 
                                 </ListItemButton>
 
@@ -90,40 +93,76 @@ export const TodoList = (props: IProps) => {
                                     </ListItemIcon>
                                     <ListItemText>Add Comment</ListItemText>
                                 </ListItemButton>
+                                {open.isOpen && open.index === index &&
 
+                                    <form onSubmit={() => {
+                                        handleComment(open.index, comment)
+                                        setOpen({ ...open, isOpen: false })
+                                    }}>
+
+                                        <TextField
+                                            type='text'
+                                            value={comment}
+                                            onChange={e => setComment(e.target.value)}
+                                            required
+                                            label="Comment"
+                                            placeholder='Enter Comment Here...'
+
+                                        />
+                                        <Button variant="contained" size="small" type='submit' className='button' color='secondary'>
+                                            Add
+                                        </Button>
+                                    </form>}
+                                <ListItemButton>
+
+                                    <ListItemIcon>
+                                        {todo.comments.length}<ChatBubbleOutline className='icon' />
+                                    </ListItemIcon>
+                                    <ListItemText> <strong>Comments:</strong>{todo.comments.length > 0 ? todo.comments + ',' : ' -'}</ListItemText>
+
+                                </ListItemButton>
                                 <ListItemButton onClick={(): void => props.deleteTodo(index)}>
                                     <ListItemIcon>
                                         <DeleteForever sx={{ color: pink[500] }} />
                                     </ListItemIcon>
                                     <ListItemText>Delete</ListItemText>
                                 </ListItemButton>
+                                <ListItemButton onClick={() => setCustom({ isOpen: !custom.isOpen, index: index })}>
+                                    <ListItemIcon>
+                                        <SendIcon />
+                                    </ListItemIcon>
+                                    <ListItemText>
+                                        <strong>{todo.customData?.fieldName} </strong> {(todo.fieldValue )?':'+ todo.fieldValue:'-'}
+                                    </ListItemText>
+                                </ListItemButton>
+                                {custom.isOpen && custom.index === index &&
+
+                                    <form onSubmit={() => {
+                                        handleField(custom.index, field)
+                                        setCustom({ ...custom, isOpen: false })
+                                    }}>
+                                       {todo.customData?.fieldType === 'string'?(<Switch {...label} onChange={e => setField(e.target.value)} />):(
+                                        <TextField
+                                            type={todo.customData?.fieldType}
+                                            value={field}
+                                            onChange={e => setField(e.target.value)}
+                                            required
+                                            label="Field"
+                                            placeholder='Enter Field Here...'
+
+                                        />)}
+                                        <Button variant="contained" size="small" type='submit' className='button' color='secondary'>
+                                            Add Value
+                                        </Button>
+                                    </form>}
                                 <Divider />
-                            </Fragment>
+                            </div>
                         );
                     })}
                 </List>
             </Grid>
             <Grid item xs={12} md={6}>
-                {open.isOpen &&
 
-                    <form onSubmit={() => {
-                        handleComment(open.index, comment)
-                        setOpen({ ...open, isOpen: false })
-                    }}>
-
-                        <TextField
-                            type='text'
-                            value={comment}
-                            onChange={e => setComment(e.target.value)}
-                            required
-                            label="Outlined"
-                            placeholder='Enter Comment Here...'
-
-                        />
-                        <Button variant="contained" size="small" type='submit' className='button' color='secondary'>
-                            Add
-                        </Button>
-                    </form>}
             </Grid>
         </Grid>
     )
